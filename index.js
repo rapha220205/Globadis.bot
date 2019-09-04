@@ -5,7 +5,7 @@ var prefix = "/";
 
 const warns = JSON.parse(fs.readFileSync('./warns.json'))
 
-client.login("NjA5MzQ2MjcyNzE2OTE0Njk5.XVYPmw.tQ0nXxHNvGWY_DC_I6eTHdo7-cU");
+client.login(process.env.TOKEN);
 
 client.on('ready', function(){
     client.user.setActivity("Globadis/Discord: Y8CraD6", {type: "PLAYING"})
