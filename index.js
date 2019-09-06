@@ -13,11 +13,41 @@ var prefix = "/";
 
 const warns = JSON.parse(fs.readFileSync('./warns.json'))
 
-client.login("NjA5MzQ2MjcyNzE2OTE0Njk5.XVYPmw.tQ0nXxHNvGWY_DC_I6eTHdo7-cU");
+client.login("NjA5MzQ2MjcyNzE2OTE0Njk5.XXLNTA.uj34OqeUhNFdc2Jr9zuoYMkzQ3U");
 
 client.on('ready', function(){
     client.user.setActivity("Globadis: /help", {type: "PLAYING"})
 });
+
+client.on('message', message => {
+   
+    var msgauthor = message.author.id
+ 
+    if(message.author.bot)return;
+ 
+    if(!db.get("xp").find({user : msgauthor}).value()){
+        db.get("xp").push({user : msgauthor, xp: 1}).write();
+    }else{
+        var userxpdb = db.get("xp").filter({user : msgauthor}).find("xp").value();
+        console.log(userxpdb)
+        var userxp = Object.values(userxpdb)
+        console.log(userxp)
+        console.log(`Nombre d'xp: ${userxp[1]}`)
+ 
+        db.get("xp").find({user: msgauthor}).assign({user: msgauthor, xp: userxp[1] += 1}).write();
+ 
+        if(message.content === prefix + "xp"){
+            var xp = db.get("xp").filter({user: msgauthor}).find('xp').value()
+            var xpfinal = Object.values(xp);
+            var xp_embed = new Discord.RichEmbed()
+                .setTitle(`Stat des XP de : ${message.author.username}`)
+                .setColor('000000')
+                .addField("XP", `${xpfinal[1]} xp`)
+                .setFooter("By Rapha2202 | Globadis#1120")
+            message.channel.send({embed : xp_embed})
+        }
+    }
+})
 
 client.on('message', message => {
     if(message.content === "Salut"){
@@ -300,34 +330,4 @@ if (args[0].toLocaleLowerCase() === prefix + 'error') {
     if (!member.bannable) return message.channel.send("je ne peux pas faire cesser de fonctionner")
     message.channel.send("**" + member.user.username + "**.exe a cesser de fonctionner")
     };
-}
-
-bot.on('message', message => {
-   
-    var msgauthor = message.author.id
- 
-    if(message.author.bot)return;
- 
-    if(!db.get("xp").find({user : msgauthor}).value()){
-        db.get("xp").push({user : msgauthor, xp: 1}).write();
-    }else{
-        var userxpdb = db.get("xp").filter({user : msgauthor}).find("xp").value();
-        console.log(userxpdb)
-        var userxp = Object.values(userxpdb)
-        console.log(userxp)
-        console.log(`Nombre d'xp: ${userxp[1]}`)
- 
-        db.get("xp").find({user: msgauthor}).assign({user: msgauthor, xp: userxp[1] += 1}).write();
- 
-        if(message.content === prefix + "xp"){
-            var xp = db.get("xp").filter({user: msgauthor}).find('xp').value()
-            var xpfinal = Object.values(xp);
-            var xp_embed = new Discord.RichEmbed()
-                .setTitle(`Stat des XP de : ${message.author.username}`)
-                .setColor('#F4D03F')
-                .addField("XP", `${xpfinal[1]} xp`)
-                .setFooter("By Rapha2202 | Globadid#1120")
-            message.channel.send({embed : xp_embed})
-        }
-    }
 })
