@@ -13,7 +13,7 @@ var prefix = "/";
 
 const warns = JSON.parse(fs.readFileSync('./warns.json'))
 
-client.login("NjA5MzQ2MjcyNzE2OTE0Njk5.XXLNTA.uj34OqeUhNFdc2Jr9zuoYMkzQ3U");
+client.login(process.env.TOKEN");
 
 client.on('ready', function(){
     client.user.setActivity("Globadis: /help", {type: "PLAYING"})
