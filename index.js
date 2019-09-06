@@ -1,14 +1,22 @@
 const Discord = require ("discord.js");
 const fs = require('fs');
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
 const client = new Discord.Client();
+
+const adapter = new FileSync('database.json');
+const db = low(adapter);
+
+db.defaults({ histoires: [], xp: []}).write()
+
 var prefix = "/";
 
 const warns = JSON.parse(fs.readFileSync('./warns.json'))
 
-client.login(process.env.TOKEN);
+client.login("NjA5MzQ2MjcyNzE2OTE0Njk5.XVYPmw.tQ0nXxHNvGWY_DC_I6eTHdo7-cU");
 
 client.on('ready', function(){
-    client.user.setActivity("Globadis/Discord: Y8CraD6", {type: "PLAYING"})
+    client.user.setActivity("Globadis: /help", {type: "PLAYING"})
 });
 
 client.on('message', message => {
@@ -136,6 +144,7 @@ client.on("message", function (message) {
             .setAuthor(member.user.username, member.user.displayAvatarURL)
             .addField('10 derniers warns', ((warns[member.id] && warns[member.id].length) ? warns[member.id].slice(0, 10).map(e => e.reason) : "Ce membre n'a aucun warns"))
             .setTimestamp()
+            .setFooter('By Rapha2202 | Globadis#1120')
         message.channel.send(embed)
     };
 });
@@ -185,7 +194,7 @@ if(message.content === prefix + "help"){
     .addField("Serveur-info:"," ```donne les informations sur le serveur```")
     .addField("Kill","```Kill l'utilisateur mentionner```")
     .setTimestamp()
-    .setFooter("Par Rapha2202 | Globadis#1120")
+    .setFooter("By Rapha2202 | Globadis#1120")
     message.channel.sendMessage(help_embed)
     console.log ("Help")
     message.delete();
@@ -208,7 +217,7 @@ var staff_embed = new Discord.RichEmbed()
 .addField("Gg-1","```Permet de dire GG a 1 personne```")
 .addField("Gg-2","```Permet de dire GG a plusieurs personnes```")
 .setTimestamp()
-.setFooter("Par Rapha2202 | Globadis#1120") 
+.setFooter("By Rapha2202 | Globadis#1120") 
 message.channel.sendMessage(staff_embed)
 console.log ("Moderation")
 message.delete();
@@ -228,7 +237,7 @@ if(message.content === prefix + "serveur-info"){
     .addField("**Tu as rejoind le**", message.member.joinedAt)
     .addField("**Nombre de Joueur**", message.guild.memberCount)
     .setTimestamp()
-    .setFooter("Par Rapha2202 | Globadis#1120")
+    .setFooter("By Rapha2202 | Globadis#1120")
     message.channel.sendMessage(serveurinfo)
     console.log ("Info")
     message.delete();
@@ -245,6 +254,7 @@ if(message.content === prefix + "gg-1"){
     .setColor("000000")
     .setTitle("GG")
     .setDescription("**GG à toi. Go tous spam GG**")
+    .setFooter('By Rapha2202 | Globadis#1120')
     message.channel.sendMessage(GG1)
     console.log ("GG-1")
     message.delete();
@@ -261,6 +271,7 @@ if(message.content === prefix + "gg-2"){
     .setColor("000000")
     .setTitle("GG")
     .setDescription("**GG à vous. Go tous spam GG**")
+    .setFooter('By Rapha2202 | Globadis#1120')
     message.channel.sendMessage(GG2)
     console.log ("GG-2")
     message.delete();
@@ -289,4 +300,34 @@ if (args[0].toLocaleLowerCase() === prefix + 'error') {
     if (!member.bannable) return message.channel.send("je ne peux pas faire cesser de fonctionner")
     message.channel.send("**" + member.user.username + "**.exe a cesser de fonctionner")
     };
-});
+}
+
+bot.on('message', message => {
+   
+    var msgauthor = message.author.id
+ 
+    if(message.author.bot)return;
+ 
+    if(!db.get("xp").find({user : msgauthor}).value()){
+        db.get("xp").push({user : msgauthor, xp: 1}).write();
+    }else{
+        var userxpdb = db.get("xp").filter({user : msgauthor}).find("xp").value();
+        console.log(userxpdb)
+        var userxp = Object.values(userxpdb)
+        console.log(userxp)
+        console.log(`Nombre d'xp: ${userxp[1]}`)
+ 
+        db.get("xp").find({user: msgauthor}).assign({user: msgauthor, xp: userxp[1] += 1}).write();
+ 
+        if(message.content === prefix + "xp"){
+            var xp = db.get("xp").filter({user: msgauthor}).find('xp').value()
+            var xpfinal = Object.values(xp);
+            var xp_embed = new Discord.RichEmbed()
+                .setTitle(`Stat des XP de : ${message.author.username}`)
+                .setColor('#F4D03F')
+                .addField("XP", `${xpfinal[1]} xp`)
+                .setFooter("By Rapha2202 | Globadid#1120")
+            message.channel.send({embed : xp_embed})
+        }
+    }
+})
